@@ -1,13 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import api from '../api';
+import '../styles/DatasetUpload.css';
 
-const DatasetPanel = ({ datasets, fetchDatasets }) => {
-    const [selectedDataset, setSelectedDataset] = useState(null);
+const DatasetPanel = ({ datasets, fetchDatasets, handleSelectDataset, selectedDataset }) => {
+    //const [selectedDataset, setSelectedDataset] = useState(null);
     const [fileStructure, setFileStructure] = useState([]);
 
     // Fetch file structure for the selected dataset
     const handleInspect = (dataset) => {
-        setSelectedDataset(dataset);
+        //setSelectedDataset(dataset);
         api.get(`/datasets/${dataset.id}/structure/`)
            .then((response) => setFileStructure(response.data))
            .catch((error) => console.error('Error fetching file structure:', error));
@@ -15,7 +16,7 @@ const DatasetPanel = ({ datasets, fetchDatasets }) => {
 
     //Handle closing the dataset inspection view
     const handleClose = () => {
-        setSelectedDataset(null);
+        //setSelectedDataset(null);
         setFileStructure([]);
     };
 
@@ -33,20 +34,23 @@ const DatasetPanel = ({ datasets, fetchDatasets }) => {
 
     return (
         <div className="dataset-panel">
-            <h3>Uploaded Datasets</h3>
-            <ul>
+            <h2>Current Datasets</h2>
+            <ul className="dataset-list">
                 {datasets.map((dataset) => (
                     <li key={dataset.id}>
                         <strong>{dataset.name}</strong>
                         <button onClick={() => handleInspect(dataset)}>Inspect</button>
                         <button onClick={() => handleRemove(dataset.id)}>Remove</button>
+                        <button onClick={() => handleSelectDataset(selectedDataset?.id === dataset.id ? null : dataset)}>
+                            {selectedDataset?.id === dataset.id ? 'Deselect' : 'Select Dataset'}
+                        </button>
                     </li>
                 ))}
             </ul>
 
-            {selectedDataset && (
+            {fileStructure.length > 0 && (
                 <div className="dataset-structure">
-                    <h4>Structure of: {selectedDataset.name}</h4>
+                    <h4>Structure of: {selectedDataset?.name}</h4>
                     <button onClick={handleClose}>Close</button>
                     <ul>
                         {fileStructure.map((item, index) => (

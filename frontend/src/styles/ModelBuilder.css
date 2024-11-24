@@ -1,0 +1,83 @@
+.layer-item {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    padding: 0px;
+    margin: 0px;
+    margin-bottom: 10px;
+
+}
+
+.input-layer {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    padding-left: 40px;
+    margin: 0px;
+    margin-bottom: 10px;
+}
+
+.input-label {
+    display: flex;
+    flex-direction: column;
+
+}
+
+.layer-parameters {
+    flex: 1; 
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px; 
+}
+
+.layer-buttons {
+    display: inline-flex;
+    gap: 10px;
+    justify-content: flex-start;
+    align-items: center;
+    margin-right: 200px;
+}
+
+.global-hyperparameters {
+    margin-bottom: 10px;
+    margin-left: 40px;
+}
+
+.hyperparameter-fields {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.input-field {
+    width: 90px;
+    padding: 3px;
+    font-size: 13px;
+    box-sizing:border-box;
+}
+
+.epochs-section {
+    margin-left: 800px;
+}
+
+.epochs-section label {
+    width: 50px;
+    display: flex;
+    flex-direction: column; 
+}
+
+.save-button {
+    margin-left: 40px;
+    margin-top: 40px;
+}
+
+.model-builder-section {
+    background-color: #f9f9f9; 
+    border: 1px solid #ccc;
+    border-radius: 8px; 
+    padding: 15px; 
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); 
+}
+
+
+

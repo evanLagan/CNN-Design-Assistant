@@ -1,1 +1,19 @@
 
+.app-layout {
+    display: flex; 
+    gap: 20px; 
+    padding: 20px; 
+}
+
+.dataset-section {
+    flex: 1; 
+    max-width: 300px; 
+}
+
+/* Model builder section */
+.model-builder-section {
+    flex: 4; 
+}
+
+
+

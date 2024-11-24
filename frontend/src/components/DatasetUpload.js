@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import api from '../api'; 
+import api from '../api';
 
 const DatasetUpload = ({ fetchDatasets }) => {
     const [file, setFile] = useState(null);
@@ -15,7 +15,7 @@ const DatasetUpload = ({ fetchDatasets }) => {
 
     const handleUpload = (e) => {
         e.preventDefault();
-        if(!file || !name){
+        if (!file || !name) {
             alert('Please provide a dataset name and files')
             return;
         }
@@ -25,25 +25,29 @@ const DatasetUpload = ({ fetchDatasets }) => {
         formData.append('file', file);
 
         api.post('/datasets/', formData)
-           .then(() => {
-               alert('Dataset uploaded successfully!');
-               fetchDatasets();
-           })
-           .catch(error => console.error('Error uploading dataset:', error));
+            .then(() => {
+                alert('Dataset uploaded successfully!');
+                fetchDatasets();
+            })
+            .catch(error => console.error('Error uploading dataset:', error));
     };
 
     return (
-        <form onSubmit={handleUpload}>
-            <label>
-                Dataset Name:
-                <input type="text" value={name} onChange={handleNameChange} />
-            </label>
-            <label>
-                Upload ZIP:
-                <input type="file" onChange={handleFileChange} />
-            </label>
-            <button type="submit">Upload</button>
-        </form>
+
+        <div className='dataset-upload-container'>
+            <h3>Dataset Upload</h3>
+            <form className='dataset-upload' onSubmit={handleUpload}>
+                <label className='dataset-name'>
+                    Dataset Name:
+                    <input type="text" value={name} onChange={handleNameChange} />
+                </label>
+                <label className='dataset-zip'>
+                    Upload ZIP:
+                    <input type="file" onChange={handleFileChange} />
+                </label>
+                <button className='dataset-upload-button' type="submit">Upload</button>
+            </form>
+        </div>
     );
 };
 
