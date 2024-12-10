@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import '../styles/ModelBuilder.css';
 
-const ModelBuilder = ({ onSaveModel }) => {
+const ModelBuilder = ({ onSaveModel, onTrainModel, isTraining }) => {
     const [layers, setLayers] = useState([]);
     const [inputShape, setInputShape] = useState('32, 32, 3'); //Default Value
     const [optimizer, setOptimizer] = useState('adam'); //Default Value
@@ -290,7 +290,7 @@ const ModelBuilder = ({ onSaveModel }) => {
                                 type="number"
                                 min="1"
                                 value={epochs}
-                                onChange={(e) =>setEpochs(parseInt(e.target.value))}
+                                onChange={(e) => setEpochs(parseInt(e.target.value))}
                             />
                         </label>
                     </div>
@@ -298,6 +298,16 @@ const ModelBuilder = ({ onSaveModel }) => {
             )}
             {/* Save Button */}
             <button className='save-button' onClick={saveModel}>Save Model</button>
+           
+            {/* Train Button */}
+            <button
+                className="train-button"
+                onClick={() => onTrainModel({ inputShape, layers, optimizer, loss, learningRate, epochs })}
+                disabled={isTraining}
+            >
+                {isTraining ? 'Training...' : 'Train Model'}
+            </button>
+            {isTraining && <div className="spinner"></div>}
         </div>
 
 

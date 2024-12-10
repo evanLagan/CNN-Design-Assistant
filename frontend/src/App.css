@@ -1,6 +1,7 @@
 
 .app-layout {
     display: flex; 
+    flex-wrap: wrap;
     gap: 20px; 
     padding: 20px; 
 }
@@ -10,10 +11,13 @@
     max-width: 300px; 
 }
 
-/* Model builder section */
+
 .model-builder-section {
     flex: 4; 
 }
 
-
+.notepad-section {
+    flex-basis: 100%; /* Forces this section to take the full row */
+    width: 100%; /* Ensure it spans the entire row */
+}
 

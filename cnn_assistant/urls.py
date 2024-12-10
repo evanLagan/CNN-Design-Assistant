@@ -13,6 +13,8 @@ urlpatterns = [
 
     path('datasets/<int:dataset_id>/', DatasetDeleteView.as_view(), name='dataset_delete'),
 
+    path('train-model/', views.train_model, name='train-model'),
+
   
 
 ]

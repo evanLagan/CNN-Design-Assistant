@@ -3,25 +3,23 @@ import api from '../api';
 
 const DatasetUpload = ({ fetchDatasets }) => {
     const [file, setFile] = useState(null);
-    const [name, setName] = useState('');
+    const [isUploading, setIsUploading] = useState(false);
 
     const handleFileChange = (e) => {
         setFile(e.target.files[0]);
     };
 
-    const handleNameChange = (e) => {
-        setName(e.target.value);
-    };
 
     const handleUpload = (e) => {
         e.preventDefault();
-        if (!file || !name) {
-            alert('Please provide a dataset name and files')
+        if (!file) {
+            alert('Please provide a dataset')
             return;
         }
 
+        setIsUploading(true);
+
         const formData = new FormData();
-        formData.append('name', name);
         formData.append('file', file);
 
         api.post('/datasets/', formData)
@@ -29,7 +27,13 @@ const DatasetUpload = ({ fetchDatasets }) => {
                 alert('Dataset uploaded successfully!');
                 fetchDatasets();
             })
-            .catch(error => console.error('Error uploading dataset:', error));
+            .catch((error) => {
+                console.error('Error uploading dataset:', error);
+                alert('Failed to upload dataset. Please try again');
+            })
+            .finally(() => {
+                setIsUploading(false);
+            });
     };
 
     return (
@@ -37,16 +41,15 @@ const DatasetUpload = ({ fetchDatasets }) => {
         <div className='dataset-upload-container'>
             <h3>Dataset Upload</h3>
             <form className='dataset-upload' onSubmit={handleUpload}>
-                <label className='dataset-name'>
-                    Dataset Name:
-                    <input type="text" value={name} onChange={handleNameChange} />
-                </label>
                 <label className='dataset-zip'>
                     Upload ZIP:
                     <input type="file" onChange={handleFileChange} />
                 </label>
-                <button className='dataset-upload-button' type="submit">Upload</button>
+                <button className='dataset-upload-button' type="submit" disabled={isUploading}>
+                    {isUploading ? 'Uploading...' : 'Upload'}
+                </button>
             </form>
+            {isUploading && <p>Dataset is being uploaded. Please wait</p>}
         </div>
     );
 };
