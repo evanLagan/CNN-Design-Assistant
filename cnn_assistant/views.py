@@ -23,7 +23,6 @@ def test_tensorflow(request):
     return JsonResponse({'result': result.numpy().tolist()})
 
 
-
 # Dataset Upload View
 class DatasetUploadView(APIView):
     parser_classes = [MultiPartParser]
@@ -106,7 +105,6 @@ class DatasetDeleteView(APIView):
         
 # Model training test (this code and following revisions should be put into their own seperate files)
 # Hardcoding dataset (MNIST) and subsequent preprocessing (this will need to be implemeted on the frontend soon)
-
 @api_view(['POST'])
 def train_model(request):
     try:

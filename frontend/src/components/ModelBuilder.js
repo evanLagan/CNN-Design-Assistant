@@ -3,19 +3,28 @@ import '../styles/ModelBuilder.css';
 
 const ModelBuilder = ({ onSaveModel, onTrainModel, isTraining }) => {
     const [layers, setLayers] = useState([]);
-    const [inputShape, setInputShape] = useState('32, 32, 3'); //Default Value
-    const [optimizer, setOptimizer] = useState('adam'); //Default Value
-    const [loss, setLoss] = useState('categorical_crossentropy'); //Default Value
-    const [learningRate, setLearningRate] = useState(0.001); //Default value
+    const [inputShape, setInputShape] = useState('32, 32, 3'); 
+    const [optimizer, setOptimizer] = useState('adam'); 
+    const [loss, setLoss] = useState('categorical_crossentropy'); 
+    const [learningRate, setLearningRate] = useState(0.001); 
     const [showGlobalHyperparameters, setShowGlobalHyperparameters] = useState(false);
-    const [modeIntialised, setModelInitialised] = useState(false); //Tracks whether or not a model is being built
-    const [epochs, setEpochs] = useState(10); // Default value
+    const [modeIntialised, setModelInitialised] = useState(false); 
+    const [epochs, setEpochs] = useState(10); 
 
 
 
     //Adding a new layer
     const addLayer = (index = null) => {
-        const newLayer = { type: 'Conv2D', filters: 32, kernel_size: '3x3', strides: '1x1', activation: 'relu', } //Default
+        const defaultConfigs = {
+            // Need to add more
+            Dense: { type: 'Dense', units: 128, activation: 'relu'},
+            Conv2D: { type: 'Conv2D', filters: 32, kernel_size: '3x3', strides: '1x1', activation: 'relu'},
+            MaxPooling2D: { type: 'MaxPooling2D', pool_size: '2x2'},
+            Flatten: { type: 'Flatten'},
+            Dropout: { type: 'Dropout', rate: 0.5},
+        }
+        //const newLayer = { type: 'Conv2D', filters: 32, kernel_size: '3x3', strides: '1x1', activation: 'relu', }
+        const newLayer = defaultConfigs['Conv2D'];
         const newLayers = [...layers];
 
         if (index !== null) {
@@ -41,11 +50,29 @@ const ModelBuilder = ({ onSaveModel, onTrainModel, isTraining }) => {
     };
 
     //Updating a layer
-    const updateLayer = (index, field, value) => {
+   /* const updateLayer = (index, field, value) => {
         const newLayers = [...layers];
         newLayers[index][field] = value;
         setLayers(newLayers);
+    }; */
+    const updateLayer = (index, field, value) => {
+        const newLayers = [...layers];
+        if (field === 'type') {
+            const defaultConfigs = {
+                Dense: { type: 'Dense', units: 128, activation: 'relu' },
+                Conv2D: { type: 'Conv2D', filters: 32, kernel_size: '3x3', strides: '1x1', activation: 'relu' },
+                MaxPooling2D: { type: 'MaxPooling2D', pool_size: '2x2' },
+                Flatten: { type: 'Flatten' },
+                Dropout: { type: 'Dropout', rate: 0.5 },
+            };
+            newLayers[index] = defaultConfigs[value]; // Reset to the default configuration
+        } else {
+            // For other fields, simply update the existing value
+            newLayers[index][field] = value;
+        }
+        setLayers(newLayers);
     };
+    
 
     //Saving the model
     const saveModel = () => {
