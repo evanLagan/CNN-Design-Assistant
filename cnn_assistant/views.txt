@@ -14,15 +14,6 @@ from django.conf import settings
 import shutil 
 
 
-
-# TensorFlow Test View (Not currently being utilised)
-def test_tensorflow(request):
-    x = tf.constant([1, 2, 3])
-    y = tf.constant([4, 5, 6])
-    result = tf.add(x, y)
-    return JsonResponse({'result': result.numpy().tolist()})
-
-
 # Dataset Upload View
 class DatasetUploadView(APIView):
     parser_classes = [MultiPartParser]
