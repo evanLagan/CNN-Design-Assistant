@@ -64,7 +64,7 @@ class DatasetStructureView(APIView):
         except Dataset.DoesNotExist:
             return Response({"error": "Dataset not found"}, status=status.HTTP_404_NOT_FOUND)
 
-
+"""
 class DatasetDeleteView(APIView):
     def delete(self, request, dataset_id):
         try:
@@ -75,4 +75,49 @@ class DatasetDeleteView(APIView):
         except Dataset.DoesNotExist:
             return Response({"error": "Dataset not found"}, status=status.HTTP_404_NOT_FOUND)
         except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+"""
+class DatasetDeleteView(APIView):
+    def delete(self, request, dataset_id):
+        try:
+            # Fetch the dataset object
+            dataset = Dataset.objects.get(id=dataset_id)
+
+            # Path to dataset directory
+            root_dir = dataset.root_directory
+            print(f"Attempting to delete dataset directory: {root_dir}")
+
+            # Check if the directory is the media folder itself
+            media_root = os.path.normpath(settings.MEDIA_ROOT)  # Normalize for OS-specific path formats
+            root_dir_normalized = os.path.normpath(root_dir)
+
+            if root_dir_normalized == media_root:
+                return Response({"error": "Cannot delete the media folder"}, status=status.HTTP_400_BAD_REQUEST)
+
+            # Remove the dataset directory if it exists
+            if os.path.exists(root_dir):
+                shutil.rmtree(root_dir, ignore_errors=False)  # Fail if deletion fails
+
+                # Clean up empty parent directories, but stop at the media folder
+                parent_dir = os.path.dirname(root_dir)
+                while os.path.isdir(parent_dir) and not os.listdir(parent_dir):
+                    if os.path.normpath(parent_dir) == media_root:  # Stop at the media folder
+                        break
+                    os.rmdir(parent_dir)
+                    parent_dir = os.path.dirname(parent_dir)
+                print(f"Dataset directory and empty parent directories deleted: {root_dir}")
+            else:
+                print(f"Directory not found: {root_dir}")
+
+            # Delete the database entry
+            dataset.delete()
+            return Response({"message": "Dataset deleted successfully"}, status=status.HTTP_200_OK)
+
+        except Dataset.DoesNotExist:
+            return Response({"error": "Dataset not found"}, status=status.HTTP_404_NOT_FOUND)
+        except PermissionError as e:
+            print(f"Permission error: {e}")
+            return Response({"error": "Permission denied while deleting directory"}, status=status.HTTP_403_FORBIDDEN)
+        except Exception as e:
+            print(f"Error in DatasetDeleteView: {e}")
             return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
