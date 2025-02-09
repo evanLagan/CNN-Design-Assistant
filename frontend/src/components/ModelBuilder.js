@@ -3,11 +3,10 @@ import '../styles/ModelBuilder.css';
 
 const ModelBuilder = ({ onSaveModel, onTrainModel, isTraining }) => {
     const [layers, setLayers] = useState([]);
-    const [inputShape, setInputShape] = useState('32, 32, 3');
+    const [inputShape, setInputShape] = useState('224, 224, 3');
     const [optimizer, setOptimizer] = useState('adam');
     const [loss, setLoss] = useState('categorical_crossentropy');
     const [learningRate, setLearningRate] = useState(0.001);
-    //const [showGlobalHyperparameters, setShowGlobalHyperparameters] = useState(true);
     const [modeIntialised, setModelInitialised] = useState(false);
     const [epochs, setEpochs] = useState(10);
 
@@ -21,7 +20,7 @@ const ModelBuilder = ({ onSaveModel, onTrainModel, isTraining }) => {
 
     // Mapping layer types to their descriptions for tooltips (Need to add more)
     const layerDescriptions = {
-        Dense: "A fully connected layer where every input is connected to every output.",
+        Dense: "A fully connected layer where every input is connected to every output. When used as the final layer, ensure the number of units matches the number of classes in the dataset.",
         Conv2D: "A spatial feature extractor, building complex representations by aggregating local information through strided kernel operations.",
         MaxPooling2D: "A pooling layer that downsamples the input to reduce spatial dimensions.",
         Flatten: "Flattens the multi-dimensional input into a 1d array.",
@@ -48,8 +47,8 @@ const ModelBuilder = ({ onSaveModel, onTrainModel, isTraining }) => {
             Dropout: { type: 'Dropout', rate: 0.5 },
 
             // Need to test these on the backend
-            BatchNormalization: { type: 'BatchNormalization'},
-            ReLU: { type: 'ReLU'},
+            BatchNormalization: { type: 'BatchNormalization' },
+            ReLU: { type: 'ReLU' },
         };
         const newLayer = defaultConfigs['Conv2D'];
         const newLayers = [...layers];
@@ -87,8 +86,8 @@ const ModelBuilder = ({ onSaveModel, onTrainModel, isTraining }) => {
                 Dropout: { type: 'Dropout', rate: 0.5 },
 
                 //New need to test
-                BatchNormalization: { type: 'BatchNormalization'},
-                ReLU: { type: 'ReLU'},
+                BatchNormalization: { type: 'BatchNormalization' },
+                ReLU: { type: 'ReLU' },
             };
             newLayers[index] = defaultConfigs[value]; // Reset to the default configuration
         } else {
@@ -153,10 +152,10 @@ const ModelBuilder = ({ onSaveModel, onTrainModel, isTraining }) => {
             {/*Initial Add Layer button */}
             {!modeIntialised || layers.length === 0 ? (
                 <>
-                  <button onClick={initialiseModel}>Build Model</button>
-                  <button onClick={loadGenericCNN}>Load Generic CNN</button>
+                    <button onClick={initialiseModel} style={{ marginRight: "4px" }}>Build Model</button>
+                    <button onClick={loadGenericCNN}>Load Generic CNN</button>
                 </>
-                
+
             ) : null}
 
             {/*Input Layer, Layers, and Global Hyperparameters */}
@@ -167,13 +166,33 @@ const ModelBuilder = ({ onSaveModel, onTrainModel, isTraining }) => {
                     <div className='input-layer'>
                         <label className='input-label'>
                             Input Shape:
-                            <input
-                                className='input-field'
-                                type="text"
-                                value={inputShape}
-                                onChange={(e) => setInputShape(e.target.value)}
-                                placeholder="32, 32, 3"
-                            />
+                            <div style={{ display: 'flex', alignItems: 'center' }}>
+                                <input
+                                    className='input-field'
+                                    type="text"
+                                    value={inputShape}
+                                    onChange={(e) => setInputShape(e.target.value)}
+                                    placeholder="224, 224, 3"
+                                />
+                                <span
+                                    className="info-icon"
+                                    style={{ marginLeft: "8px", cursor: 'pointer' }}
+                                    onMouseEnter={(e) => {
+                                        const rect = e.currentTarget.getBoundingClientRect();
+                                        setTooltip({
+                                            visible: true,
+                                            text: 'Image Dimensions: (Height (pixels), Width (pixels), Channels ( 3 = "RGB", 1 = "greyscale" ))',
+                                            x: rect.right + 10,
+                                            y: rect.top,
+                                        })
+                                    }}
+                                    onMouseLeave={() => {
+                                        setTooltip({ visible: false, text: '', x: 0, y: 0 });
+                                    }}
+                                >
+                                    ℹ️
+                                </span>
+                            </div>
                         </label>
                     </div>
 
@@ -202,23 +221,23 @@ const ModelBuilder = ({ onSaveModel, onTrainModel, isTraining }) => {
                                             </select>
                                             {/* Info button for this layer */}
                                             <span
-                                              className="info-icon"
-                                              style={{ marginLeft: '8px', cursor: 'pointer' }}
-                                              onMouseEnter={(e) => {
-                                                const rect = e.currentTarget.getBoundingClientRect();
-                                                const description = layerDescriptions[layer.type] || "No description available.";
-                                                setTooltip({
-                                                    visible: true,
-                                                    text: description,
-                                                    x: rect.right + 10,
-                                                    y: rect.top,
-                                                });
-                                              }}
-                                            onMouseLeave={() => {
-                                                setTooltip({ visible: false, text: '', x: 0, y:0})
-                                            }}
+                                                className="info-icon"
+                                                style={{ marginLeft: '8px', cursor: 'pointer' }}
+                                                onMouseEnter={(e) => {
+                                                    const rect = e.currentTarget.getBoundingClientRect();
+                                                    const description = layerDescriptions[layer.type] || "No description available.";
+                                                    setTooltip({
+                                                        visible: true,
+                                                        text: description,
+                                                        x: rect.right + 10,
+                                                        y: rect.top,
+                                                    });
+                                                }}
+                                                onMouseLeave={() => {
+                                                    setTooltip({ visible: false, text: '', x: 0, y: 0 })
+                                                }}
                                             >
-                                                 ℹ️
+                                                ℹ️
                                             </span>
                                         </label>
 
@@ -410,23 +429,34 @@ const ModelBuilder = ({ onSaveModel, onTrainModel, isTraining }) => {
                                 min="1"
                                 value={epochs}
                                 onChange={(e) => setEpochs(parseInt(e.target.value))}
+                                style={{
+                                    border: epochs > 15 ? '2px solid red' : '1px solid #ccc',
+                                    outline: epochs > 15 ? 'none' : undefined,
+                                }}
                             />
                         </label>
+                        {epochs > 15 && (
+                            <p style={{ color: 'black', fontSize: '0.9em', zIndex: 10, top: '100%' }}>
+                                Ensure you have access to a machine with sufficient GPU power.
+                            </p>
+                        )}
                     </div>
                 </>
             )}
-            {/* Save Button */}
-            <button className='save-button' onClick={saveModel}>Save Model</button>
+            {modeIntialised && (
+                <>
+                    <button className='save-button' onClick={saveModel}>Save Model</button>
+                    <button
+                        className="train-button"
+                        onClick={() => onTrainModel({ inputShape, layers, optimizer, loss, learningRate, epochs })}
+                        disabled={isTraining}
+                    >
+                        {isTraining ? 'Training...' : 'Train Model'}
+                    </button>
+                    {isTraining && <div className="spinner"></div>}
 
-            {/* Train Button */}
-            <button
-                className="train-button"
-                onClick={() => onTrainModel({ inputShape, layers, optimizer, loss, learningRate, epochs })}
-                disabled={isTraining}
-            >
-                {isTraining ? 'Training...' : 'Train Model'}
-            </button>
-            {isTraining && <div className="spinner"></div>}
+                </>
+            )}
 
             {/* Tooltip Element */}
             {tooltip.visible && (

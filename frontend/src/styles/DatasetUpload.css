@@ -13,11 +13,22 @@
     width: 170px;
 }
 
-
 .dataset-section {
     background-color: #f9f9f9; /* Optional: Add a background color */
     border: 1px solid #ccc; /* Optional: Add a border */
     border-radius: 8px; /* Optional: Rounded corners */
     padding: 15px; /* Space inside each section */
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Optional: Add a subtle shadow */
+}
+
+.dataset-list li button {
+    display: block;
+}
+
+.button-container {
+    margin-top: 2px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 2px;
 }

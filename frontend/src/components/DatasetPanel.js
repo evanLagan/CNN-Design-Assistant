@@ -10,8 +10,8 @@ const DatasetPanel = ({ datasets, fetchDatasets, handleSelectDataset, selectedDa
     const handleInspect = (dataset) => {
         //setSelectedDataset(dataset);
         api.get(`/datasets/${dataset.id}/structure/`)
-           .then((response) => setFileStructure(response.data))
-           .catch((error) => console.error('Error fetching file structure:', error));
+            .then((response) => setFileStructure(response.data))
+            .catch((error) => console.error('Error fetching file structure:', error));
     };
 
     const handleClose = () => {
@@ -20,21 +20,21 @@ const DatasetPanel = ({ datasets, fetchDatasets, handleSelectDataset, selectedDa
     };
 
     const handleRemove = (datasetId) => {
-        if(window.confirm('Are you sure that you want to remove this dataset from the application?')){
+        if (window.confirm('Are you sure that you want to remove this dataset from the application?')) {
             setDeletingDatasetId(datasetId);
 
             api.delete(`/datasets/${datasetId}/`)
-               .then(() => {
-                   alert('Dataset removed successfully');
-                   fetchDatasets();
-               })
-               .catch((error) => {
-                   console.error('Error removing dataset:', error);
-                   alert('Failed to remove dataset. Please try again');
-               })
-               .finally(() => {
-                   setDeletingDatasetId(null);
-               });
+                .then(() => {
+                    alert('Dataset removed successfully');
+                    fetchDatasets();
+                })
+                .catch((error) => {
+                    console.error('Error removing dataset:', error);
+                    alert('Failed to remove dataset. Please try again');
+                })
+                .finally(() => {
+                    setDeletingDatasetId(null);
+                });
         }
     }
 
@@ -45,13 +45,18 @@ const DatasetPanel = ({ datasets, fetchDatasets, handleSelectDataset, selectedDa
                 {datasets.map((dataset) => (
                     <li key={dataset.id}>
                         <strong>{dataset.name}</strong>
-                        <button onClick={() => handleInspect(dataset)}>Inspect</button>
-                        <button onClick={() => handleRemove(dataset.id)} disabled={deletingDatasetId === dataset.id}>
-                            {deletingDatasetId === dataset.id ? 'Removing...' : 'Remove'}
-                        </button>
-                        <button onClick={() => handleSelectDataset(selectedDataset?.id === dataset.id ? null : dataset)}>
-                            {selectedDataset?.id === dataset.id ? 'Deselect' : 'Select Dataset'}
-                        </button>
+                        <div className="button-container">
+                            <button onClick={() => handleInspect(dataset)}>🔍</button>
+                            <button onClick={() => handleRemove(dataset.id)} disabled={deletingDatasetId === dataset.id}>
+                                {deletingDatasetId === dataset.id ? 'Removing...' : '🗑️'}
+                            </button>
+                            <button onClick={() => handleSelectDataset(selectedDataset?.id === dataset.id ? null : dataset)}
+                                    style={selectedDataset?.id === dataset.id ? { backgroundColor: '#e34d4d', borderRadius: '4px' } : {}
+                                }
+                            >
+                                {selectedDataset?.id === dataset.id ? 'Deselect' : 'Select Dataset'}
+                            </button>
+                        </div>
                     </li>
                 ))}
             </ul>

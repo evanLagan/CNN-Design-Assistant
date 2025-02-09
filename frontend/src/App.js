@@ -6,6 +6,7 @@ import DatasetPanel from './components/DatasetPanel';
 import DatasetUpload from './components/DatasetUpload';
 import ModelBuilder from './components/ModelBuilder';
 import Notepad from './components/Notepad';
+import TrainingResponseDisplay from './components/TrainingResponseDisplay';
 
 function App() {
   const [datasets, setDatasets] = useState([]);
@@ -13,6 +14,7 @@ function App() {
   const [modelConfig, setModelConfig] = useState(null);
   const [trainingStatus, setTrainingStatus] = useState(null);
   const [isTraining, setIsTraining] = useState(false);
+  const [trainingResponse, setTrainingResponse] = useState(null);
 
   //Fetch Datasets from the backend
   const fetchDatasets = () => {
@@ -58,6 +60,7 @@ function App() {
       const response = await api.post('/train-model/', payLoad);
       setTrainingStatus('Training completed.');
       console.log('Training response:', response.data);
+      setTrainingResponse(response.data);
       alert('Training completed successfully!');
     } catch (error) {
       console.error('Error during training:', error);
@@ -89,13 +92,14 @@ function App() {
           isTraining={isTraining} 
         />
       </div>
+      <div className='training-response-display'>
+        <TrainingResponseDisplay responseData={trainingResponse} />
+      </div>
       <div className='notepad-section'>
         < Notepad />
       </div>
     </div>
     </div>
-
-
   );
 }
 
