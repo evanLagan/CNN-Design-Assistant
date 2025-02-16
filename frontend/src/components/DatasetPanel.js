@@ -46,13 +46,14 @@ const DatasetPanel = ({ datasets, fetchDatasets, handleSelectDataset, selectedDa
                     <li key={dataset.id}>
                         <strong>{dataset.name}</strong>
                         <div className="button-container">
-                            <button onClick={() => handleInspect(dataset)}>🔍</button>
-                            <button onClick={() => handleRemove(dataset.id)} disabled={deletingDatasetId === dataset.id}>
+                            <button className='inspect-btn' onClick={() => handleInspect(dataset)}>🔍</button>
+                            <button className='remove-btn' onClick={() => handleRemove(dataset.id)} disabled={deletingDatasetId === dataset.id}>
                                 {deletingDatasetId === dataset.id ? 'Removing...' : '🗑️'}
                             </button>
-                            <button onClick={() => handleSelectDataset(selectedDataset?.id === dataset.id ? null : dataset)}
-                                    style={selectedDataset?.id === dataset.id ? { backgroundColor: '#e34d4d', borderRadius: '4px' } : {}
-                                }
+                            <button 
+                                onClick={() => handleSelectDataset(selectedDataset?.id === dataset.id ? null : dataset)}
+                                className={`select-btn ${selectedDataset?.id === dataset.id ? 'select-btn-red' : ''}`}
+                                    
                             >
                                 {selectedDataset?.id === dataset.id ? 'Deselect' : 'Select Dataset'}
                             </button>

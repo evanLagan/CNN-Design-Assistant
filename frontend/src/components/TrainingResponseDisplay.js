@@ -1,7 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import '../styles/TrainingResponse.css';
 
-const TrainingResponseDisplay = ({ responseData }) => {
+const TrainingResponseDisplay = ({ responseData, clearResponse }) => {
     return (
         <div className="training-response-display" style={{ padding: "20px", border: "1px solid #ccc", borderRadius: "8px"}}>
             <h2>Training Response</h2>
@@ -20,6 +21,9 @@ const TrainingResponseDisplay = ({ responseData }) => {
                         <pre>{JSON.stringify(responseData.request_data, null, 2)}</pre>
                     </div>
                   )}
+                  <button className='tr-clear-btn' onClick={clearResponse}>
+                    Clear
+                  </button>
                 </>
             ) : (
                 <p>No training results available yet</p>

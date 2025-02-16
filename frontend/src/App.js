@@ -71,6 +71,28 @@ function App() {
     }
   }
 
+  // Retrieving model code
+  const getModelCode = async (config) => {
+    try {
+      // Remove spaces
+      const payload = {
+        ...config,
+        inputShape: config.inputShape.replace(/\s/g, ''),
+      };
+      const response = await api.post('/get-model-code/', payload);
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching model code:', error);
+      throw error;
+    }
+  };
+
+  // Clear training response
+  const clearTrainingResponse = () => {
+    setTrainingResponse(null);
+    setTrainingStatus(null);
+  }
+
 
   return (
    <div>
@@ -90,10 +112,14 @@ function App() {
           onSaveModel={saveModelConfig}
           onTrainModel={trainModel} 
           isTraining={isTraining} 
+          onGetModelCode={getModelCode}
         />
       </div>
       <div className='training-response-display'>
-        <TrainingResponseDisplay responseData={trainingResponse} />
+        <TrainingResponseDisplay 
+          responseData={trainingResponse}
+          clearResponse={clearTrainingResponse} 
+        />
       </div>
       <div className='notepad-section'>
         < Notepad />

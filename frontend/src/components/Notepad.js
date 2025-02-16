@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import '../styles/Notepad.css';
 
 const Notepad = () => {
   const [text, setText] = useState(''); // State to store the text
@@ -19,14 +20,14 @@ const Notepad = () => {
       <textarea
         value={text}
         onChange={handleTextChange}
-        placeholder="Type your notes here..."
+        placeholder="Take notes and record training results here..."
         style={styles.textarea}
       />
       <div>
-        <button onClick={handleCopy}>
+        <button className='notepad-btn' onClick={handleCopy}>
           Copy Text
         </button>
-        <button onClick={() => setText('')}>
+        <button className='notepad-btn' onClick={() => setText('')}>
           Clear
         </button>
       </div>
@@ -36,15 +37,15 @@ const Notepad = () => {
 
 const styles = {
     textarea: {
-        width: '97%',     // Makes the text area take the full width of its container
-        height: '400px',   // Larger height for more visible content
-        padding: '15px',   // Adds inner spacing for better text readability
-        fontSize: '16px',  // Makes the text more legible
-        fontFamily: 'Arial, sans-serif', // Sets a clean font for notes
-        borderRadius: '5px',  // Slightly rounded corners
-        border: '1px solid #ddd', // Subtle border
-        outline: 'none',   // Removes default outline
-        resize: 'vertical', // Allows vertical resizing
+        width: '97%',    
+        height: '400px',   
+        padding: '15px',   
+        fontSize: '16px',  
+        fontFamily: 'Arial, sans-serif', 
+        borderRadius: '5px',  
+        border: '1px solid #ddd', 
+        outline: 'none',  
+        resize: 'vertical', 
       },
 }
 

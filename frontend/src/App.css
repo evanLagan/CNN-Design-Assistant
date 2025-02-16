@@ -1,9 +1,16 @@
-
 .app-layout {
     display: flex; 
     flex-wrap: wrap;
     gap: 20px; 
     padding: 20px; 
+}
+
+body {
+    font-family: "JetBrains Mono",monospace !important;
+    background-color: #e6e4d3;
+    margin: 0; 
+    padding: 0; 
+    box-sizing: border-box; 
 }
 
 .dataset-section {
@@ -17,7 +24,16 @@
 }
 
 .notepad-section {
-    flex-basis: 100%; /* Forces this section to take the full row */
-    width: 100%; /* Ensure it spans the entire row */
+    flex-basis: 100%; 
+    width: 100%; 
 }
 
+.training-response-display {
+    flex-basis: 100%;
+    width: 97%;
+    background-color: #f9f9f9; 
+    border: 1px solid #ccc;
+    border-radius: 8px; 
+    padding: 15px; 
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); 
+}

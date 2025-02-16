@@ -43,7 +43,7 @@ const DatasetUpload = ({ fetchDatasets }) => {
             <form className='dataset-upload' onSubmit={handleUpload}>
                 <label className='dataset-zip'>
                     Upload ZIP:
-                    <input type="file" onChange={handleFileChange} />
+                    <input className='choose-file-btn' type="file" onChange={handleFileChange} />
                 </label>
                 <button className='dataset-upload-button' type="submit" disabled={isUploading}>
                     {isUploading ? 'Uploading...' : 'Upload'}

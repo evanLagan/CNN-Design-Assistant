@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import '../styles/ModelBuilder.css';
 
-const ModelBuilder = ({ onSaveModel, onTrainModel, isTraining }) => {
+const ModelBuilder = ({ onSaveModel, onTrainModel, isTraining, onGetModelCode }) => {
     const [layers, setLayers] = useState([]);
     const [inputShape, setInputShape] = useState('224, 224, 3');
     const [optimizer, setOptimizer] = useState('adam');
@@ -9,6 +9,10 @@ const ModelBuilder = ({ onSaveModel, onTrainModel, isTraining }) => {
     const [learningRate, setLearningRate] = useState(0.001);
     const [modeIntialised, setModelInitialised] = useState(false);
     const [epochs, setEpochs] = useState(10);
+
+    // State for python model code pop-up
+    const [modalOpen, setModalOpen] = useState(false);
+    const [modelCode, setModelCode] = useState('');
 
     // Tooltip state for displaying both layer and global hyperparameters
     const [tooltip, setTooltip] = useState({
@@ -142,6 +146,36 @@ const ModelBuilder = ({ onSaveModel, onTrainModel, isTraining }) => {
         onSaveModel(modelConfig);
         console.log('Model configuration saved:', modelConfig);
         alert('Model configuration saved');
+    };
+
+    // Getting model code
+    const handleGetModelCode = async () => {
+        const config = {
+            inputShape,
+            layers,
+            optimizer,
+            loss,
+            learningRate,
+        };
+
+        try {
+            const code = await onGetModelCode(config);
+            setModelCode(code);
+            setModalOpen(true);
+        } catch (error) {
+            alert('Failed to fetch model code');
+        }
+    };
+
+    // Copying to clipboard
+    const handleCopy = () => {
+        if (navigator.clipboard) {
+            navigator.clipboard.writeText(modelCode)
+              .then(() => alert('Model code copied to clipboard!'))
+              .catch(err => alert('Failed to copy text: ' + err));
+        } else {
+            alert('Clipboard API not available');
+        }
     };
 
 
@@ -345,8 +379,8 @@ const ModelBuilder = ({ onSaveModel, onTrainModel, isTraining }) => {
                                     </div>
 
                                     <div className="layer-buttons">
-                                        <button onClick={() => removeLayer(index)}>-</button>
-                                        <button onClick={() => addLayer(index)}>+</button>
+                                        <button className='mb-remove' onClick={() => removeLayer(index)}>-</button>
+                                        <button className='mb-add' onClick={() => addLayer(index)}>+</button>
                                     </div>
                                 </li>
                             ))}
@@ -450,9 +484,17 @@ const ModelBuilder = ({ onSaveModel, onTrainModel, isTraining }) => {
                         className="train-button"
                         onClick={() => onTrainModel({ inputShape, layers, optimizer, loss, learningRate, epochs })}
                         disabled={isTraining}
+                        style={{ marginLeft: '8px'}}
                     >
                         {isTraining ? 'Training...' : 'Train Model'}
                     </button>
+
+                    <button 
+                        className="get-model-code-button"
+                        onClick={handleGetModelCode}
+                        style={{ marginLeft: '8px'}}
+                    > Generate Python Code </button>
+
                     {isTraining && <div className="spinner"></div>}
 
                 </>
@@ -475,6 +517,20 @@ const ModelBuilder = ({ onSaveModel, onTrainModel, isTraining }) => {
                     }}
                 >
                     {tooltip.text}
+                </div>
+            )}
+
+            {/* Modal fo displaying model code */}
+            {modalOpen && (
+                <div className='modal-overlay' onClick={() => setModalOpen(false)}>
+                    <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+                        <h2>Generated Model Code</h2>
+                        <pre style={{ background: '#f4f4f4', padding: '10px', borderRadius: '4px', maxHeight: '400px', overflow: 'auto' }}>
+                            {modelCode}
+                        </pre>
+                        <button className='mb-copy' onClick={handleCopy}>Copy</button>
+                        <button className='mb-close' onClick={() => setModalOpen(false)} style={{ marginLeft: '4px'}}>Close</button>
+                    </div>
                 </div>
             )}
         </div>
