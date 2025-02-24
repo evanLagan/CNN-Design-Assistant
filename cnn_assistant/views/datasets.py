@@ -9,6 +9,8 @@ import os
 from django.conf import settings
 import shutil
 from ..models import Dataset
+from PIL import Image
+import mimetypes
 
 
 class DatasetUploadView(APIView):
@@ -42,7 +44,7 @@ class DatasetUploadView(APIView):
         dataset = Dataset.objects.create(name=dataset_name, root_directory=extract_path)
         return Response({"message": "Dataset uploaded successfully", "id": dataset.id}, status=status.HTTP_201_CREATED)
 
-
+"""
 class DatasetStructureView(APIView):
     def get(self, request, dataset_id):
         try:
@@ -63,20 +65,98 @@ class DatasetStructureView(APIView):
             return Response(structure, status=status.HTTP_200_OK)
         except Dataset.DoesNotExist:
             return Response({"error": "Dataset not found"}, status=status.HTTP_404_NOT_FOUND)
-
 """
-class DatasetDeleteView(APIView):
-    def delete(self, request, dataset_id):
+
+from PIL import Image
+import mimetypes
+
+class DatasetStructureView(APIView):
+    def get(self, request, dataset_id):
         try:
             dataset = Dataset.objects.get(id=dataset_id)
-            shutil.rmtree(dataset.root_directory, ignore_errors=True)
-            dataset.delete()
-            return Response({"message": "Dataset deleted successfully"}, status=status.HTTP_200_OK)
+            root_dir = dataset.root_directory
+            structure = []
+            metadata = {
+                "color_channel": None,
+                "num_classes_train": 0,
+                "num_classes_test": 0,
+                "total_images": 0,
+                "train_test_mismatch": False,
+                "has_train_test_split": False,
+                "mixed_image_sizes_per_class": {}  # New field
+            }
+
+            class_counts = {"train": {}, "test": {}}
+            image_sizes_per_class = {"train": {}, "test": {}}  # Stores image sizes for each class
+
+            for root, dirs, files in os.walk(root_dir):
+                relative_path = os.path.relpath(root, root_dir)
+                if relative_path == '.':
+                    relative_path = os.path.basename(root_dir)
+
+                structure.append({
+                    "path": relative_path,
+                    "directories": dirs,
+                    "files": files
+                })
+
+                # Detect train/test folder presence
+                is_train = "train" in relative_path.lower()
+                is_test = "test" in relative_path.lower()
+
+                if is_train or is_test:
+                    metadata["has_train_test_split"] = True
+                    parent_folder = "train" if is_train else "test"
+
+                    for folder in dirs:  # Each subdirectory represents a class
+                        class_counts[parent_folder][folder] = 0  # Initialize class count
+                        image_sizes_per_class[parent_folder][folder] = set()  # Track image sizes
+
+                # Process image files
+                for file in files:
+                    file_path = os.path.join(root, file)
+                    if mimetypes.guess_type(file_path)[0] and "image" in mimetypes.guess_type(file_path)[0]:
+                        with Image.open(file_path) as img:
+                            img_size = (img.width, img.height)  # Image dimensions
+                            class_name = os.path.basename(root)  # Get class folder name
+
+                            # Determine if image belongs to a known train/test class
+                            if class_name in class_counts["train"]:
+                                class_counts["train"][class_name] += 1
+                                image_sizes_per_class["train"][class_name].add(img_size)
+                            elif class_name in class_counts["test"]:
+                                class_counts["test"][class_name] += 1
+                                image_sizes_per_class["test"][class_name].add(img_size)
+
+                            # Set color channel type (only needed once)
+                            if not metadata["color_channel"]:
+                                metadata["color_channel"] = "RGB" if img.mode == "RGB" else "Grayscale"
+
+                        metadata["total_images"] += 1
+
+            # Count unique classes in train and test
+            metadata["num_classes_train"] = len(class_counts["train"])
+            metadata["num_classes_test"] = len(class_counts["test"])
+
+            # Check if train/test class lists are mismatched
+            train_classes = set(class_counts["train"].keys())
+            test_classes = set(class_counts["test"].keys())
+            metadata["train_test_mismatch"] = train_classes != test_classes
+
+            # Detect mixed image sizes for each class
+            for dataset_type in ["train", "test"]:
+                for class_name, sizes in image_sizes_per_class[dataset_type].items():
+                    metadata["mixed_image_sizes_per_class"][class_name] = len(sizes) > 1
+
+            return Response({"structure": structure, "metadata": metadata}, status=status.HTTP_200_OK)
+
         except Dataset.DoesNotExist:
             return Response({"error": "Dataset not found"}, status=status.HTTP_404_NOT_FOUND)
         except Exception as e:
             return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-"""
+
+
+
 class DatasetDeleteView(APIView):
     def delete(self, request, dataset_id):
         try:

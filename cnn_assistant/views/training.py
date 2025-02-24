@@ -96,10 +96,10 @@ def build_dynamic_model(input_shape, layers_config, optimizer, loss, learning_ra
             model.add(tf.keras.layers.Flatten())
         
         elif layer_type == 'Dropout':
-            model.add(tf.keras.Dropout(rate=layer['rate']))
+            model.add(tf.keras.layers.Dropout(rate=layer['rate']))
         
     # Compile the model with dynamic optimizer and loss
-    optimizer_instance = getattr(tf.keras.optimizers, optimizer.capitalize())(learning_rate=learning_rate)
+    optimizer_instance = getattr(tf.keras.optimizers, optimizer)(learning_rate=learning_rate)
     model.compile(optimizer=optimizer_instance, loss=loss, metrics=['accuracy'])
     
     return model

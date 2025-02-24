@@ -186,7 +186,7 @@ const ModelBuilder = ({ onSaveModel, onTrainModel, isTraining, onGetModelCode })
             {/*Initial Add Layer button */}
             {!modeIntialised || layers.length === 0 ? (
                 <>
-                    <button onClick={initialiseModel} style={{ marginRight: "4px" }}>Build Model</button>
+                    <button className="mb-build-model-btn" onClick={initialiseModel}>Build Model</button>
                     <button onClick={loadGenericCNN}>Load Generic CNN</button>
                 </>
 
@@ -398,9 +398,9 @@ const ModelBuilder = ({ onSaveModel, onTrainModel, isTraining, onGetModelCode })
                                         className='input-field'
                                         value={optimizer}
                                         onChange={(e) => setOptimizer(e.target.value)}>
-                                        <option value="adam">Adam</option>
-                                        <option value="sgd">SGD</option>
-                                        <option value="rmsprop">RMSProp</option>
+                                        <option value="Adam">Adam</option>
+                                        <option value="SGD">SGD</option>
+                                        <option value="RMSprop">RMSProp</option>
                                     </select>
                                     <span
                                         className="info-icon"
