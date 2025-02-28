@@ -9,6 +9,11 @@ const ModelBuilder = ({ onSaveModel, onTrainModel, isTraining, onGetModelCode })
     const [learningRate, setLearningRate] = useState(0.001);
     const [modeIntialised, setModelInitialised] = useState(false);
     const [epochs, setEpochs] = useState(10);
+    
+    // Displaying Errors in the UI
+    const [errors, setErrors] = useState({})
+    const [validationMessages, setValidationMessages] = useState([]);
+
 
     // State for python model code pop-up
     const [modalOpen, setModalOpen] = useState(false);
@@ -132,9 +137,59 @@ const ModelBuilder = ({ onSaveModel, onTrainModel, isTraining, onGetModelCode })
         setInputShape('224, 224, 3');
     };
 
+    // Validate input format for strides, kernel size and pooling layers
+    const validateNumXNum = (value) => {
+        return /^\d+x\d+$/.test(value); // Ensures the format "number x number"
+    } 
+
+    // Validate layer compatability
+    const validateLayerCompatability = () => {
+        let errors = [];
+
+        if (layers.length === 0){
+            errors.push("The model must have at least one layer.");
+        }
+        if (layers.length > 0 && layers[0].type !== "Conv2D") {
+            errors.push("The first layer must be a Conv2D layer");
+        }
+
+        let hasFlatten = false;
+        for (let i = 0; i < layers.length; i++){
+            const layer = layers[i];
+            const prevLayer = layers[i - 1] || null;
+
+            if(layer.type === "Conv2D" && prevLayer?.type === "Dense") {
+                errors.push("A Conv2D layer cannot follow a Dense layer.");
+            }
+            if(layer.type === "Dense" && !hasFlatten) {
+                errors.push("A Dense layer must come after a Flatten layer.");
+            }
+            if(layer.type === "MaxPooling2D" && prevLayer?.type !== "Conv2D"){
+                errors.push("MaxPooling2D must follow a Conv2D layer");
+            }
+            if(i === 0 && layer.type === "Dropout") {
+                errors.push("Dropout cannot be the first layer.");
+            }
+
+            if(layer.type === "Flatten"){
+                hasFlatten = true;
+            }
+        }
+
+        setValidationMessages(errors);
+        return errors;
+    };
+
 
     //Saving the model
     const saveModel = () => {
+        const validationErrors = validateLayerCompatability();
+
+        if (validationErrors.length > 0) {
+            alert("Model Cofiguration Invalid");
+            return;
+        }
+
         const modelConfig = {
             input_shape: inputShape,
             layers,
@@ -283,6 +338,7 @@ const ModelBuilder = ({ onSaveModel, onTrainModel, isTraining, onGetModelCode })
                                                     <input
                                                         className='input-field'
                                                         type="number"
+                                                        min="1"
                                                         value={layer.units || ''}
                                                         onChange={(e) =>
                                                             updateLayer(index, 'units', parseInt(e.target.value))
@@ -311,6 +367,7 @@ const ModelBuilder = ({ onSaveModel, onTrainModel, isTraining, onGetModelCode })
                                                     <input
                                                         className='input-field'
                                                         type="number"
+                                                        min="1"
                                                         value={layer.filters || ''}
                                                         onChange={(e) =>
                                                             updateLayer(index, 'filters', parseInt(e.target.value))
@@ -323,9 +380,21 @@ const ModelBuilder = ({ onSaveModel, onTrainModel, isTraining, onGetModelCode })
                                                         className='input-field'
                                                         type="text"
                                                         value={layer.kernel_size || ''}
-                                                        onChange={(e) => updateLayer(index, 'kernel_size', e.target.value)}
+                                                        onChange={(e) => {
+                                                            const value = e.target.value;
+                                                            updateLayer(index, 'kernel_size', value);
+
+                                                            setErrors((prevErrors) => ({
+                                                                ...prevErrors,
+                                                                [index]: {
+                                                                    ...prevErrors[index],
+                                                                    kernel_size: validateNumXNum(value) ? '' : 'Format must be NUMxNUM'
+                                                                }
+                                                            }));
+                                                        }}
                                                         placeholder="e.g., 3x3"
                                                     />
+                                                {errors[index]?.kernel_size && <p className='error-message'>{errors[index].kernel_size}</p>}
                                                 </label>
                                                 <label>
                                                     Strides:
@@ -333,9 +402,21 @@ const ModelBuilder = ({ onSaveModel, onTrainModel, isTraining, onGetModelCode })
                                                         className='input-field'
                                                         type="text"
                                                         value={layer.strides || ''}
-                                                        onChange={(e) => updateLayer(index, 'strides', e.target.value)}
-                                                        placeholder="e.g., 1x1"
+                                                        onChange={(e) => {
+                                                            const value = e.target.value;
+                                                            updateLayer(index, 'strides', value);
+
+                                                            setErrors((prevErrors) => ({
+                                                                ...prevErrors,
+                                                                [index]: {
+                                                                    ...prevErrors[index],
+                                                                    strides: validateNumXNum(value) ? '' : 'Format must be NUMxNUM'
+                                                                }
+                                                            }));
+                                                        }}
+                                                        placeholder='e.g., 1x1'
                                                     />
+                                                    {errors[index]?.strides && <p className="error-message">{errors[index].strides}</p>}
                                                 </label>
                                                 <label>
                                                     Activation:
@@ -371,9 +452,21 @@ const ModelBuilder = ({ onSaveModel, onTrainModel, isTraining, onGetModelCode })
                                                     className='input-field'
                                                     type="text"
                                                     value={layer.pool_size || ''}
-                                                    onChange={(e) => updateLayer(index, 'pool_size', e.target.value)}
+                                                    onChange={(e) => {
+                                                        const value = e.target.value;
+                                                        updateLayer(index, 'pool_size', value);
+
+                                                        setErrors((prevErrors) => ({
+                                                            ...prevErrors,
+                                                            [index]: {
+                                                                ...prevErrors[index],
+                                                                pool_size: validateNumXNum(value) ? '' : 'Format must be NUMxNUM'
+                                                            }
+                                                        }));
+                                                    }}
                                                     placeholder="e.g., 2x2"
                                                 />
+                                                {errors[index]?.pool_size && <p className="error-message">{errors[index].pool_size}</p>}
                                             </label>
                                         )}
                                     </div>
@@ -438,6 +531,7 @@ const ModelBuilder = ({ onSaveModel, onTrainModel, isTraining, onGetModelCode })
                                         className='input-field'
                                         type="number"
                                         step="0.001"
+                                        min="0.001"
                                         value={learningRate}
                                         onChange={(e) => setLearningRate(parseFloat(e.target.value))}
                                     />
@@ -498,6 +592,18 @@ const ModelBuilder = ({ onSaveModel, onTrainModel, isTraining, onGetModelCode })
                     {isTraining && <div className="spinner"></div>}
 
                 </>
+            )}
+
+            {/* Layer Validation Messages */}
+            {validationMessages.length > 0 && (
+                <div className="validation-messages">
+                    <h3>Model Validation Issues:</h3>
+                    <ul>
+                        {validationMessages.map((msg, index) => (
+                            <li key={index} style={{ color: 'red', fontSize: '0.9em'}}>{msg}</li>
+                        ))}
+                    </ul>
+                </div>
             )}
 
             {/* Tooltip Element */}
