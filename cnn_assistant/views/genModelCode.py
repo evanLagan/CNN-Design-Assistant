@@ -3,15 +3,15 @@ from django.http import HttpResponse, JsonResponse
 import tensorflow as tf
 
 def generate_model_code(input_shape, layers_config, optimizer, loss, learning_rate):
+    # Initialize a list of of code lines with the function definition
     code_lines = [
-        "import tensorflow as tf",
-        "",
         "def build_model():",
         f"    model = tf.keras.Sequential()",
         f"    model.add(tf.keras.layers.InputLayer(input_shape={input_shape}))",
         ""
     ]
     
+    # Iterate over each layer configuration provided in layers_config
     for layer in layers_config:
         layer_type = layer['type']
         if layer_type == 'Dense':
@@ -54,10 +54,12 @@ def get_model_code(request):
     try:
         data = request.data
         
+        # Parse the input shape from a comma-seperated string to a tuple
         image_size = tuple(map(int, data.get('inputShape').split(',')[:2]))
         expected_channels = int(data.get('inputShape').split(',')[-1])
         input_shape = (image_size[0], image_size[1], expected_channels)
         
+        # Extract layers configurations and other model parameters.
         layers_config = data['layers']
         optimizer = data.get('optimizer', 'adam')
         loss = data.get('loss', 'categorical_crossentropy')

@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import api from './api';
 import './App.css';
-import TestTensorFlow from './components/TestTensorFlow';
 import DatasetPanel from './components/DatasetPanel';
 import DatasetUpload from './components/DatasetUpload';
 import ModelBuilder from './components/ModelBuilder';
@@ -46,6 +45,12 @@ function App() {
   const trainModel = async (modelConfig) => {
     if (isTraining) return; // Preventing multiple clicks 
 
+    // Check if a dataset is selected before training
+    if (!selectedDataset) {
+      alert("Please select a dataset.");
+      return;
+    }
+
     console.log('Train Button has been pressed: Model training has begun')
     try {
       setIsTraining(true);
@@ -64,8 +69,13 @@ function App() {
       alert('Training completed successfully!');
     } catch (error) {
       console.error('Error during training:', error);
+
+      if (error.response && error.response.data && error.response.data.error) {
+        alert(`Training Failed: ${error.response.data.error}`);
+      } else {
+        alert('An error occurred during training');
+      }
       setTrainingStatus('Training failed.');
-      alert('An error occured during training');
     } finally {
       setIsTraining(false);
     }

@@ -7,9 +7,7 @@ import tensorflow as tf
 from ..models import Dataset
 from PIL import Image
 
-# Note:
-# Need to make batch size dynamic!!!!!
-# Need to make build_dynamic_model Complete!!!!! (Missing layers such as batch normalization)
+
 
 # Function to load dataset dynamically
 def load_dataset(dataset_id, image_size, expected_channels):
@@ -86,6 +84,9 @@ def build_dynamic_model(input_shape, layers_config, optimizer, loss, learning_ra
                 strides=tuple(map(int, layer['strides'].split('x'))),
                 activation=layer['activation']
             ))
+        
+        elif layer_type == 'BatchNormalization':
+            model.add(tf.keras.layers.BatchNormalization())
             
         elif layer_type == 'MaxPooling2D':
             model.add(tf.keras.layers.MaxPooling2D(
@@ -125,6 +126,11 @@ def train_model(request):
         # Step 3: Load dataset and detect image channels
         train_dataset, test_dataset, train_dir = load_dataset(dataset_id, image_size, expected_channels)
         
+        # Get the number of classes in the dataset
+        num_classes = len(train_dataset.class_names)
+        print(f"Number of classes in dataset: {num_classes}")
+        
+        
         # Confirm dataset shape before training
         for image_batch, _ in train_dataset.take(1):
             print(f"Dataset batch shape: {image_batch.shape}")
@@ -138,6 +144,13 @@ def train_model(request):
         loss = data.get('loss', 'categorical_crossentropy')
         learning_rate = float(data.get('learningRate', 0.001))
         epochs = int(data.get('epochs', 10))
+        
+        
+        # Ensure the final layer is a Dense layer with units matching num_classes
+        if layers_config[-1]['type'] != 'Dense' or layers_config[-1]['units'] != num_classes:
+            return JsonResponse({
+                'error': f"The final layer must be a Dense layer with {num_classes} units to match the dataset classes."
+            }, status=400)
         
         # Step 5: Build the model dynamically
         model = build_dynamic_model(input_shape, layers_config, optimizer, loss, learning_rate)
@@ -162,5 +175,6 @@ def train_model(request):
         print("Error in train_model:", str(e))
         traceback.print_exc()
         return JsonResponse({'error': str(e)}, status=500)
-        
+
+    
 

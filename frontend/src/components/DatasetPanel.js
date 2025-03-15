@@ -7,37 +7,34 @@ const DatasetPanel = ({ datasets, fetchDatasets, handleSelectDataset, selectedDa
     const [deletingDatasetId, setDeletingDatasetId] = useState(null);
     const [datasetMetadata, setDatasetMetadata] = useState(null);
 
-
+    // Function to fetch the file structure and metadata for a specific dataset.
     const handleInspect = (dataset) => {
-        //setSelectedDataset(dataset);
+        console.log("Inspection called on:" , dataset.id)
         api.get(`/datasets/${dataset.id}/structure/`)
             .then((response) => {
+                // Save the returned file structure and metadata to the components's stat
                 setFileStructure(response.data.structure);
                 setDatasetMetadata(response.data.metadata);
             })
             .catch((error) => console.error('Error fetching file structure:', error));
     };
 
-    /*
-    const handleInspect = (dataset) => {
-        //setSelectedDataset(dataset);
-        api.get(`/datasets/${dataset.id}/structure/`)
-            .then((response) =>  setFileStructure(response.data))
-            .catch((error) => console.error('Error fetching file structure:', error));
-    }; */
-
+    // Function to clear the displayed file structure view
     const handleClose = () => {
-        //setSelectedDataset(null);
         setFileStructure([]);
     };
-
+    
+    // Function to remove a dataset after confirming with the user.
     const handleRemove = (datasetId) => {
         if (window.confirm('Are you sure that you want to remove this dataset from the application?')) {
+            // Set the dataset ID being deleted to disable its remove button (Avoid multiple requests that slow the system)
             setDeletingDatasetId(datasetId);
-
+            
+            // Send a delete request to the backend
             api.delete(`/datasets/${datasetId}/`)
                 .then(() => {
                     alert('Dataset removed successfully');
+                    // Refresh the dataset list after deletion
                     fetchDatasets();
                 })
                 .catch((error) => {
@@ -45,6 +42,7 @@ const DatasetPanel = ({ datasets, fetchDatasets, handleSelectDataset, selectedDa
                     alert('Failed to remove dataset. Please try again');
                 })
                 .finally(() => {
+                    // Reset the deleting state once the operation is complete
                     setDeletingDatasetId(null);
                 });
         }
@@ -86,6 +84,7 @@ const DatasetPanel = ({ datasets, fetchDatasets, handleSelectDataset, selectedDa
                             <p><strong>Number of Classes (Train):</strong> {datasetMetadata.num_classes_train}</p>
                             <p><strong>Number of Classes (Test):</strong> {datasetMetadata.num_classes_test}</p>
                             <p><strong>Total Images:</strong> {datasetMetadata.total_images}</p>
+                            <p><strong style={{ color: "red"}}>Number of Units needed in the final layer of your model:</strong> {datasetMetadata.num_classes_train}</p>
                             <p><strong>Has Train/Test Split:</strong> {datasetMetadata.has_train_test_split ? '✅ Yes' : '❌ No'}</p>
                         </div>
                     )}

@@ -4,7 +4,7 @@ import '../styles/ModelBuilder.css';
 const ModelBuilder = ({ onSaveModel, onTrainModel, isTraining, onGetModelCode }) => {
     const [layers, setLayers] = useState([]);
     const [inputShape, setInputShape] = useState('224, 224, 3');
-    const [optimizer, setOptimizer] = useState('adam');
+    const [optimizer, setOptimizer] = useState('Adam');
     const [loss, setLoss] = useState('categorical_crossentropy');
     const [learningRate, setLearningRate] = useState(0.001);
     const [modeIntialised, setModelInitialised] = useState(false);
@@ -33,7 +33,7 @@ const ModelBuilder = ({ onSaveModel, onTrainModel, isTraining, onGetModelCode })
         Conv2D: "A spatial feature extractor, building complex representations by aggregating local information through strided kernel operations.",
         MaxPooling2D: "A pooling layer that downsamples the input to reduce spatial dimensions.",
         Flatten: "Flattens the multi-dimensional input into a 1d array.",
-        BatchNormalization: "Normalizes activations to speed up training.",
+        BatchNormalization: "Normalizes activations to speed up training. Typically added after convolutional or dense layers to improve training stability",
         ReLu: "Applies the Rectified Linear Unit activation function.",
         Droput: "Randomly disables a fraction of neurons during training to prevent overfitting.",
     }
@@ -57,7 +57,6 @@ const ModelBuilder = ({ onSaveModel, onTrainModel, isTraining, onGetModelCode })
 
             // Need to test these on the backend
             BatchNormalization: { type: 'BatchNormalization' },
-            ReLU: { type: 'ReLU' },
         };
         const newLayer = defaultConfigs['Conv2D'];
         const newLayers = [...layers];
@@ -96,7 +95,6 @@ const ModelBuilder = ({ onSaveModel, onTrainModel, isTraining, onGetModelCode })
 
                 //New need to test
                 BatchNormalization: { type: 'BatchNormalization' },
-                ReLU: { type: 'ReLU' },
             };
             newLayers[index] = defaultConfigs[value]; // Reset to the default configuration
         } else {
@@ -164,17 +162,26 @@ const ModelBuilder = ({ onSaveModel, onTrainModel, isTraining, onGetModelCode })
             if(layer.type === "Dense" && !hasFlatten) {
                 errors.push("A Dense layer must come after a Flatten layer.");
             }
-            if(layer.type === "MaxPooling2D" && prevLayer?.type !== "Conv2D"){
-                errors.push("MaxPooling2D must follow a Conv2D layer");
+            if(layer.type === "MaxPooling2D" && prevLayer?.type !== "Conv2D" && prevLayer?.type !== "BatchNormalization"){
+                errors.push("MaxPooling2D must follow a Conv2D or BatchNormalization layer");
             }
             if(i === 0 && layer.type === "Dropout") {
                 errors.push("Dropout cannot be the first layer.");
+            }
+            if (layer.type === "BatchNormalization" && prevLayer?.type !== "Conv2D" && prevLayer?.type !== "MaxPooling2D"){
+                errors.push("BatchNormalization must follow a Conv2D or MaxPooling2D layer.");
             }
 
             if(layer.type === "Flatten"){
                 hasFlatten = true;
             }
         }
+
+        // Ensure the final layer is a Dense Layer
+        const lastLayer = layers[layers.length - 1];
+        if (!lastLayer || lastLayer.type !== "Dense"){
+            errors.push("The final layer must be a Dense Layer.");
+        } 
 
         setValidationMessages(errors);
         return errors;
@@ -242,7 +249,7 @@ const ModelBuilder = ({ onSaveModel, onTrainModel, isTraining, onGetModelCode })
             {!modeIntialised || layers.length === 0 ? (
                 <>
                     <button className="mb-build-model-btn" onClick={initialiseModel}>Build Model</button>
-                    <button onClick={loadGenericCNN}>Load Generic CNN</button>
+                    <button className="mb-build-model-btn" onClick={loadGenericCNN}>Load Generic CNN</button>
                 </>
 
             ) : null}
@@ -305,7 +312,6 @@ const ModelBuilder = ({ onSaveModel, onTrainModel, isTraining, onGetModelCode })
                                                 <option value="MaxPooling2D">MaxPooling2D</option>
                                                 <option value="Flatten">Flatten</option>
                                                 <option value="BatchNormalization">BatchNormalization</option>
-                                                <option value="ReLU">ReLU</option>
                                                 <option value="Dropout">Dropout</option>
                                             </select>
                                             {/* Info button for this layer */}

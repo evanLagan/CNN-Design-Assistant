@@ -5,23 +5,26 @@ const DatasetUpload = ({ fetchDatasets }) => {
     const [file, setFile] = useState(null);
     const [isUploading, setIsUploading] = useState(false);
 
+    // Handle the form submission for uploading the dataset
     const handleFileChange = (e) => {
         setFile(e.target.files[0]);
     };
 
-
+    // Handle the form submission for uploading the dataset
     const handleUpload = (e) => {
         e.preventDefault();
         if (!file) {
             alert('Please provide a dataset')
             return;
         }
-
+        
+        // Indicate that the upload is in progress
         setIsUploading(true);
 
         const formData = new FormData();
         formData.append('file', file);
-
+        
+        // Make an API call to upload the dataset
         api.post('/datasets/', formData)
             .then(() => {
                 alert('Dataset uploaded successfully!');

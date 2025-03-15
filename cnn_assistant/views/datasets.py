@@ -17,62 +17,49 @@ class DatasetUploadView(APIView):
     parser_classes = [MultiPartParser]
 
     def get(self, request):
+        # Retrieve all datasets from the database
         datasets = Dataset.objects.all()
+        # Prepare a list of dataset dictionaries with basic information.
         data = [{"id": dataset.id, "name": dataset.name, "root_directory": dataset.root_directory} for dataset in datasets]
         return Response(data, status=status.HTTP_200_OK)
 
     def post(self, request):
+        # Get the uploaded file from the request
         dataset_file = request.FILES.get('file')
-
+        
+        # Validate that a file was provided
         if not dataset_file:
             return Response({"error": "Dataset name and file are required"}, status=status.HTTP_400_BAD_REQUEST)
 
+        # Use the file name (without extensions) as the dataset name
         dataset_name = os.path.splitext(dataset_file.name)[0]
-
+        
+        # Save the uploaded ZIP file temporarily
         temp_path = os.path.join(settings.MEDIA_ROOT, 'temp.zip')
         with open(temp_path, 'wb') as f:
             for chunk in dataset_file.chunks():
                 f.write(chunk)
-
+        
+        # Create the extraction path using the dataset name
         extract_path = os.path.join(settings.MEDIA_ROOT, 'datasets', dataset_name)
         os.makedirs(extract_path, exist_ok=True)
+        
+        # Extract the ZIP file contents into the extraction path
         with zipfile.ZipFile(temp_path, 'r') as zip_ref:
             zip_ref.extractall(extract_path)
 
+        # Remove the temporary ZIP file after extraction
         os.remove(temp_path)
-
+        
+        # Create a new Dataset entry in the database
         dataset = Dataset.objects.create(name=dataset_name, root_directory=extract_path)
         return Response({"message": "Dataset uploaded successfully", "id": dataset.id}, status=status.HTTP_201_CREATED)
 
-"""
-class DatasetStructureView(APIView):
-    def get(self, request, dataset_id):
-        try:
-            dataset = Dataset.objects.get(id=dataset_id)
-            structure = []
-
-            for root, dirs, files in os.walk(dataset.root_directory):
-                relative_path = os.path.relpath(root, dataset.root_directory)
-                if relative_path == '.':
-                    relative_path = os.path.basename(dataset.root_directory)
-
-                structure.append({
-                    "path": relative_path,
-                    "directories": dirs,
-                    "files": files
-                })
-
-            return Response(structure, status=status.HTTP_200_OK)
-        except Dataset.DoesNotExist:
-            return Response({"error": "Dataset not found"}, status=status.HTTP_404_NOT_FOUND)
-"""
-
-from PIL import Image
-import mimetypes
 
 class DatasetStructureView(APIView):
     def get(self, request, dataset_id):
         try:
+            # Retrieve the dataset object by its ID
             dataset = Dataset.objects.get(id=dataset_id)
             root_dir = dataset.root_directory
             structure = []
@@ -83,12 +70,16 @@ class DatasetStructureView(APIView):
                 "total_images": 0,
                 "train_test_mismatch": False,
                 "has_train_test_split": False,
-                "mixed_image_sizes_per_class": {}  # New field
+                "mixed_image_sizes_per_class": {} 
             }
-
+            
+            # Dictionaries to count images per class for both train and test splits
             class_counts = {"train": {}, "test": {}}
-            image_sizes_per_class = {"train": {}, "test": {}}  # Stores image sizes for each class
+            
+            # Dictionaries to track unique image sizes for each class
+            image_sizes_per_class = {"train": {}, "test": {}}  
 
+            # Walk through the dataset directory to build its structure and collect metadata
             for root, dirs, files in os.walk(root_dir):
                 relative_path = os.path.relpath(root, root_dir)
                 if relative_path == '.':
