@@ -27,6 +27,8 @@ Users can interactively build CNN architectures one layer at a time. Each model 
 
 The platform allows users to inspect uploaded datasets, viewing both content and associated metadata (such as image size, class distribution, and file counts).
 
+![UI](screenshots/18.png)
+
 ### Example: Training Response for User-Defined Model
 
 Once a dataset is uploaded and a CNN model is created, users can trigger local training. The interface provides real-time feedback on the training process, including loss values, accuracy scores, and training time.
