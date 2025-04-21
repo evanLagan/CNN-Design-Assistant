@@ -31,7 +31,7 @@ The platform allows users to inspect uploaded datasets, viewing both content and
 
 ### Example: Training Response for User-Defined Model
 
-Once a dataset is uploaded and a CNN model is created, users can trigger local training. The interface provides real-time feedback on the training process, including loss values, accuracy scores, and training time.
+Once a dataset is uploaded and a CNN model is created, users can trigger local training. The interface provides feedback on the training process, including loss values, accuracy scores, and training time.
 
 ![UI](screenshots/13.png)
 
