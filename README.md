@@ -33,6 +33,8 @@ The platform allows users to inspect uploaded datasets, viewing both content and
 
 Once a dataset is uploaded and a CNN model is created, users can trigger local training. The interface provides real-time feedback on the training process, including loss values, accuracy scores, and training time.
 
+![UI](screenshots/13.png)
+
 ### TensorFlow CNN Code Generation Based on User-Defined Models
 
 After designing a model through the interface, users can automatically generate the equivalent TensorFlow (Keras) Python code, making it easy to export, refine, and deploy models in external development environments.
