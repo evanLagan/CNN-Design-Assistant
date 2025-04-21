@@ -39,6 +39,8 @@ Once a dataset is uploaded and a CNN model is created, users can trigger local t
 
 After designing a model through the interface, users can automatically generate the equivalent TensorFlow (Keras) Python code, making it easy to export, refine, and deploy models in external development environments.
 
+![UI](screenshots/54.png)
+
 ## Project Status
 
 Development has currently **slowed down**, but the project remains open for future improvements or contributions.
