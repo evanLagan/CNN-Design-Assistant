@@ -20,7 +20,8 @@ Developed an application that simplifies the design, training, and visualization
 ### Layer-by-Layer CNN Model Creation with Validation on Save
 
 Users can interactively build CNN architectures one layer at a time. Each model configuration is validated upon saving to ensure correctness and catch potential design errors early.
-![UI](screenshots/Screenshot 2025-03-15 185448.png)
+
+![UI](screenshots/5448.png)
 
 ### Dataset Content Inspection and Metadata Retrieval
 
