@@ -2,7 +2,7 @@
 
 ## About
 
-Developed an application that simplifies the design, training, and visualization of Convolutional Neural Networks (CNNs) for image recognition tasks.
+An application that simplifies the design, training, and visualization of Convolutional Neural Networks (CNNs) for image recognition tasks.
 
 - **Beginner-friendly Interface:** Abstracted the complex coding workflow required for training CNNs into an intuitive UI, allowing users with little to no experience in deep learning to easily train models without writing code.
 - **Key Features:**
@@ -10,10 +10,6 @@ Developed an application that simplifies the design, training, and visualization
   - Intuitive, layer-by-layer model creation
   - Training progress visualization
   - Ability to export Python code for advanced workflows
-
-## Installation
-
-*Instructions not yet available.*
 
 ## Features
 
@@ -41,8 +37,9 @@ After designing a model through the interface, users can automatically generate 
 
 ![UI](screenshots/54.png)
 
-## Project Status
+## View the report
+[Click here for the PDF](./report.pdf)
 
-Development has currently **slowed down**, but the project remains open for future improvements or contributions.
+
 
 
