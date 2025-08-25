@@ -38,7 +38,7 @@ After designing a model through the interface, users can automatically generate 
 ![UI](screenshots/54.png)
 
 ## View the report
-[Click here for the PDF](./report.pdf)
+[Click here for the full report](./report.pdf)
 
 
 
